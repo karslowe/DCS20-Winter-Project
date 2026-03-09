@@ -260,83 +260,91 @@ class RGBImage:
 
 
 
-# # Part 2: Image Processing Template Methods #
-# class ImageProcessingTemplate:
-#     """
-#     Contains assorted image processing methods
-#     Intended to be used as a parent class
-#     """
+# Part 2: Image Processing Template Methods #
+class ImageProcessingTemplate:
+    """
+    Contains assorted image processing methods
+    Intended to be used as a parent class
+    """
 
-#     def __init__(self):
-#         """
-#         Creates a new ImageProcessingTemplate object
+    def __init__(self):
+        """
+        Creates a new ImageProcessingTemplate object
 
-#         # Check that the cost was assigned
-#         >>> img_proc = ImageProcessingTemplate()
-#         >>> img_proc.cost
-#         0
-#         """
-#         # YOUR CODE GOES HERE #
-#         self.cost = ...
+        # Check that the cost was assigned
+        >>> img_proc = ImageProcessingTemplate()
+        >>> img_proc.cost
+        0
+        """
+        # YOUR CODE GOES HERE #
+        self.cost = 0
 
-#     def get_cost(self):
-#         """
-#         Returns the current total incurred cost
+    def get_cost(self):
+        """
+        Returns the current total incurred cost
 
-#         # Check that the cost value is returned
-#         >>> img_proc = ImageProcessingTemplate()
-#         >>> img_proc.cost = 50 # Manually modify cost
-#         >>> img_proc.get_cost()
-#         50
-#         """
-#         # YOUR CODE GOES HERE #
+        # Check that the cost value is returned
+        >>> img_proc = ImageProcessingTemplate()
+        >>> img_proc.cost = 50 # Manually modify cost
+        >>> img_proc.get_cost()
+        50
+        """
+        # YOUR CODE GOES HERE #
+        return self.cost
 
-#     def negate(self, image):
-#         """
-#         Returns a negated copy of the given image
+    def negate(self, image):
+        """
+        Returns a negated copy of the given image
 
-#         # Check if this is returning a new RGBImage instance
-#         >>> img_proc = ImageProcessingTemplate()
-#         >>> pixels = [
-#         ...              [[255, 255, 255], [0, 0, 0]]
-#         ...          ]
-#         >>> img = RGBImage(pixels)
-#         >>> img_negate = img_proc.negate(img)
-#         >>> id(img) != id(img_negate) # Check for new RGBImage instance
-#         True
+        # Check if this is returning a new RGBImage instance
+        >>> img_proc = ImageProcessingTemplate()
+        >>> pixels = [
+        ...              [[255, 255, 255], [0, 0, 0]]
+        ...          ]
+        >>> img = RGBImage(pixels)
+        >>> img_negate = img_proc.negate(img)
+        >>> id(img) != id(img_negate) # Check for new RGBImage instance
+        True
 
-#         # The following is a description of how this test works
-#         # 1 Create a processor
-#         # 2/3 Read in the input and expected output
-#         # 4 Modify the input
-#         # 5 Compare the modified and expected
-#         # 6 Write the output to file
-#         # You can view the output in the img/out/ directory
-#         >>> img_proc = ImageProcessingTemplate()                            # 1
-#         >>> img = img_read_helper('img/test_image_32x32.png')                 # 2
-#         >>> img_exp = img_read_helper('img/exp/test_image_32x32_negate.png')  # 3
-#         >>> img_negate = img_proc.negate(img)                               # 4
-#         >>> img_negate.pixels == img_exp.pixels # Check negate output       # 5
-#         True
-#         >>> img_save_helper('img/out/test_image_32x32_negate.png', img_negate)# 6
-#         """
-#         # YOUR CODE GOES HERE #
+        # The following is a description of how this test works
+        # 1 Create a processor
+        # 2/3 Read in the input and expected output
+        # 4 Modify the input
+        # 5 Compare the modified and expected
+        # 6 Write the output to file
+        # You can view the output in the img/out/ directory
+        >>> img_proc = ImageProcessingTemplate()                            # 1
+        >>> img = img_read_helper('img/test_image_32x32.png')                 # 2
+        >>> img_exp = img_read_helper('img/exp/test_image_32x32_negate.png')  # 3
+        >>> img_negate = img_proc.negate(img)                               # 4
+        >>> img_negate.pixels == img_exp.pixels # Check negate output       # 5
+        True
+        >>> img_save_helper('img/out/test_image_32x32_negate.png', img_negate)# 6
+        """
+        # YOUR CODE GOES HERE #
+        #map every pixel and lets make a deepcopy so we dont mess with the og
+        # need to return a new object
+        return RGBImage([[[255 - pix for pix in col]for col in row] for row in image.get_pixels()])
 
-#     def grayscale(self, image):
-#         """
-#         Returns a grayscale copy of the given image
 
-#         # See negate for info on this test
-#         # You can view the output in the img/out/ directory
-#         >>> img_proc = ImageProcessingTemplate()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_exp = img_read_helper('img/exp/test_image_32x32_gray.png')
-#         >>> img_gray = img_proc.grayscale(img)
-#         >>> img_gray.pixels == img_exp.pixels # Check grayscale output
-#         True
-#         >>> img_save_helper('img/out/test_image_32x32_gray.png', img_gray)
-#         """
-#         # YOUR CODE GOES HERE #
+    def grayscale(self, image):
+        """
+        Returns a grayscale copy of the given image
+
+        # See negate for info on this test
+        # You can view the output in the img/out/ directory
+        >>> img_proc = ImageProcessingTemplate()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_exp = img_read_helper('img/exp/test_image_32x32_gray.png')
+        >>> img_gray = img_proc.grayscale(img)
+        >>> img_gray.pixels == img_exp.pixels # Check grayscale output
+        True
+        >>> img_save_helper('img/out/test_image_32x32_gray.png', img_gray)
+        """
+        # YOUR CODE GOES HERE #
+        # use integer division for this part
+
+        return RGBImage([[[sum(col) //3 for pix in col]for col in row] for row in image.get_pixels()])
 
 #     def rotate_180(self, image):
 #         """
