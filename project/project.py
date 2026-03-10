@@ -1,7 +1,7 @@
 """
 DSC 20 Project Winter 2026
 Name(s): Karsten Lowe, Justin James
-PID(s):  A18680433, _______
+PID(s):  A18680433, A19122156
 Sources: Self
 """
 
@@ -346,46 +346,64 @@ class ImageProcessingTemplate:
 
         return RGBImage([[[sum(col) //3 for pix in col]for col in row] for row in image.get_pixels()])
 
-#     def rotate_180(self, image):
-#         """
-#         Returns a rotated version of the given image
+    def rotate_180(self, image):
+        """
+        Returns a rotated version of the given image
 
-#         # See negate for info on this test
-#         # You can view the output in the img/out/ directory
-#         >>> img_proc = ImageProcessingTemplate()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_exp = img_read_helper('img/exp/test_image_32x32_rotate.png')
-#         >>> img_rotate = img_proc.rotate_180(img)
-#         >>> img_rotate.pixels == img_exp.pixels # Check rotate_180 output
-#         True
-#         >>> img_save_helper('img/out/test_image_32x32_rotate.png', img_rotate)
-#         """
-#         # YOUR CODE GOES HERE #
+        # See negate for info on this test
+        # You can view the output in the img/out/ directory
+        >>> img_proc = ImageProcessingTemplate()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_exp = img_read_helper('img/exp/test_image_32x32_rotate.png')
+        >>> img_rotate = img_proc.rotate_180(img)
+        >>> img_rotate.pixels == img_exp.pixels # Check rotate_180 output
+        True
+        >>> img_save_helper('img/out/test_image_32x32_rotate.png', img_rotate)
+        """
+        # YOUR CODE GOES HERE #
+        reversed_pixels = [row[::-1] for row in image.get_pixels()[::-1]]
+        return RGBImage(reversed_pixels)
 
-#     def get_average_brightness(self, image):
-#         """
-#         Returns the average brightness for the given image
 
-#         >>> img_proc = ImageProcessingTemplate()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_proc.get_average_brightness(img)
-#         86
-#         """
-#         # YOUR CODE GOES HERE #
+    def get_average_brightness(self, image):
+        """
+        Returns the average brightness for the given image
 
-#     def adjust_brightness(self, image, intensity):
-#         """
-#         Returns a new image with adjusted brightness level
+        >>> img_proc = ImageProcessingTemplate()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_proc.get_average_brightness(img)
+        86
+        """
+        # YOUR CODE GOES HERE #
+        pixels = image.get_pixels()
+        num_pixels = image.num_rows * image.num_cols
+        total_brightness = sum([sum(pixel) // 3 for row in pixels for pixel in row])
+        return total_brightness // num_pixels
 
-#         >>> img_proc = ImageProcessingTemplate()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_exp = img_read_helper('img/exp/test_image_32x32_adjusted.png')
-#         >>> img_adjust = img_proc.adjust_brightness(img, 1.2)
-#         >>> img_adjust.pixels == img_exp.pixels # Check adjust_brightness
-#         True
-#         >>> img_save_helper('img/out/test_image_32x32_adjusted.png', img_adjust)
-#         """
-#         # YOUR CODE GOES HERE #
+    def adjust_brightness(self, image, intensity):
+        """
+        Returns a new image with adjusted brightness level
+
+        >>> img_proc = ImageProcessingTemplate()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_exp = img_read_helper('img/exp/test_image_32x32_adjusted.png')
+        >>> img_adjust = img_proc.adjust_brightness(img, 1.2)
+        >>> img_adjust.pixels == img_exp.pixels # Check adjust_brightness
+        True
+        >>> img_save_helper('img/out/test_image_32x32_adjusted.png', img_adjust)
+        """
+        # YOUR CODE GOES HERE #
+        if not isinstance(intensity, float):
+            raise TypeError("Intensity must be a float")
+        adjusted_pixels = [
+            [
+                [max(0, min(255, int(ch * intensity))) for ch in pixel]
+                for pixel in row
+            ]
+            for row in image.get_pixels()
+        ]
+        
+        return RGBImage(adjusted_pixels)
 
 
 # # Part 3: Standard Image Processing Methods #
