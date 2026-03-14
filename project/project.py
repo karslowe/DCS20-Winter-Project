@@ -504,52 +504,126 @@ class StandardImageProcessing(ImageProcessingTemplate):
 
 
 
-# # Part 4: Premium Image Processing Methods #
-# class PremiumImageProcessing(ImageProcessingTemplate):
-#     """
-#     Represents a paid tier of an image processor
-#     """
+# Part 4: Premium Image Processing Methods #
+class PremiumImageProcessing(ImageProcessingTemplate):
+    """
+    Represents a paid tier of an image processor
+    """
 
-#     def __init__(self):
-#         """
-#         Creates a new PremiumImageProcessing object
+    def __init__(self):
+        """
+        Creates a new PremiumImageProcessing object
 
-#         # Check the expected cost
-#         >>> img_proc = PremiumImageProcessing()
-#         >>> img_proc.get_cost()
-#         50
-#         """
-#         # YOUR CODE GOES HERE #
-#         self.cost = ...
+        # Check the expected cost
+        >>> img_proc = PremiumImageProcessing()
+        >>> img_proc.get_cost()
+        50
+        """
+        # YOUR CODE GOES HERE #
+        super().__init__()
+        self.cost = 50
 
-#     def pixelate(self, image, block_dim):
-#         """
-#         Returns a pixelated version of the image, where block_dim is the size of 
-#         the square blocks.
+    def pixelate(self, image, block_dim):
+        """
+        Returns a pixelated version of the image, where block_dim is the size of 
+        the square blocks.
 
-#         >>> img_proc = PremiumImageProcessing()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_pixelate = img_proc.pixelate(img, 4)
-#         >>> img_exp = img_read_helper('img/exp/test_image_32x32_pixelate.png')
-#         >>> img_exp.pixels == img_pixelate.pixels # Check pixelate output
-#         True
-#         >>> img_save_helper('img/out/test_image_32x32_pixelate.png', img_pixelate)
-#         """
-#         # YOUR CODE GOES HERE #
+        >>> img_proc = PremiumImageProcessing()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_pixelate = img_proc.pixelate(img, 4)
+        >>> img_exp = img_read_helper('img/exp/test_image_32x32_pixelate.png')
+        >>> img_exp.pixels == img_pixelate.pixels # Check pixelate output
+        True
+        >>> img_save_helper('img/out/test_image_32x32_pixelate.png', img_pixelate)
+        """
+        # YOUR CODE GOES HERE #
+        pixels = image.get_pixels()
+        num_rows = image.num_rows
+        num_cols = image.num_cols
+        # Loop through the image in chunks of size `block_dim`
+        for r in range(0, num_rows, block_dim):
+            for c in range(0, num_cols, block_dim):
+                
+                # Determine the end indices for the current block (handles edge cases)
+                r_end = min(r + block_dim, num_rows)
+                c_end = min(c + block_dim, num_cols)
 
-#     def edge_highlight(self, image):
-#         """
-#         Returns a new image with the edges highlighted
+                r_total, g_total, b_total = 0, 0, 0
+                count = 0
 
-#         >>> img_proc = PremiumImageProcessing()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_edge = img_proc.edge_highlight(img)
-#         >>> img_exp = img_read_helper('img/exp/test_image_32x32_edge.png')
-#         >>> img_exp.pixels == img_edge.pixels # Check edge_highlight output
-#         True
-#         >>> img_save_helper('img/out/test_image_32x32_edge.png', img_edge)
-#         """
-#         # YOUR CODE GOES HERE #
+                # Sum up all the channels in the current block
+                for br in range(r, r_end):
+                    for bc in range(c, c_end):
+                        r_total += pixels[br][bc][0]
+                        g_total += pixels[br][bc][1]
+                        b_total += pixels[br][bc][2]
+                        count += 1
+
+                # Calculate the floor average for each channel
+                r_avg = r_total // count
+                g_avg = g_total // count
+                b_avg = b_total // count
+
+                # Overwrite the pixels in the block with the averaged values
+                for br in range(r, r_end):
+                    for bc in range(c, c_end):
+                        pixels[br][bc] = [r_avg, g_avg, b_avg]
+
+        return RGBImage(pixels)
+
+    def edge_highlight(self, image):
+        """
+        Returns a new image with the edges highlighted
+
+        >>> img_proc = PremiumImageProcessing()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_edge = img_proc.edge_highlight(img)
+        >>> img_exp = img_read_helper('img/exp/test_image_32x32_edge.png')
+        >>> img_exp.pixels == img_edge.pixels # Check edge_highlight output
+        True
+        >>> img_save_helper('img/out/test_image_32x32_edge.png', img_edge)
+        """
+        # YOUR CODE GOES HERE #
+        pixels = image.get_pixels()
+        num_rows = image.num_rows
+        num_cols = image.num_cols
+
+        # Step 1: Convert image to single intensity values
+        single_vals = [[sum(pixel) // 3 for pixel in row] for row in pixels]
+
+        # Prepare a blank output matrix filled with [0, 0, 0]
+        new_pixels = [[[0, 0, 0] for _ in range(num_cols)] for _ in range(num_rows)]
+
+        # Define the edge detection mask/kernel
+        mask = [
+            [-1, -1, -1],
+            [-1,  8, -1],
+            [-1, -1, -1]
+        ]
+
+        # Step 2: Apply the mask
+        for r in range(num_rows):
+            for c in range(num_cols):
+                masked_value = 0
+                
+                # Iterate through the 3x3 mask
+                for mr in range(3):
+                    for mc in range(3):
+                        # Calculate the corresponding row/col in the image
+                        img_r = r + mr - 1
+                        img_c = c + mc - 1
+
+                        # Check if the calculated position is within the image bounds
+                        if 0 <= img_r < num_rows and 0 <= img_c < num_cols:
+                            masked_value += single_vals[img_r][img_c] * mask[mr][mc]
+
+                # Step 3: Clip the value to be strictly between 0 and 255
+                masked_value = max(0, min(255, masked_value))
+
+                # Step 4: Convert back to an RGB format
+                new_pixels[r][c] = [masked_value, masked_value, masked_value]
+
+        return RGBImage(new_pixels)
 
 
 
