@@ -406,78 +406,102 @@ class ImageProcessingTemplate:
         return RGBImage(adjusted_pixels)
 
 
-# # Part 3: Standard Image Processing Methods #
-# class StandardImageProcessing(ImageProcessingTemplate):
-#     """
-#     Represents a standard tier of an image processor
-#     """
+# Part 3: Standard Image Processing Methods #
+class StandardImageProcessing(ImageProcessingTemplate):
+    """
+    Represents a standard tier of an image processor
+    """
 
-#     def __init__(self):
-#         """
-#         Creates a new StandardImageProcessing object
+    def __init__(self):
+        """
+        Creates a new StandardImageProcessing object
 
-#         # Check that the cost was assigned
-#         >>> img_proc = StandardImageProcessing()
-#         >>> img_proc.cost
-#         0
-#         """
-#         # YOUR CODE GOES HERE #
-#         self.cost = ...
+        # Check that the cost was assigned
+        >>> img_proc = StandardImageProcessing()
+        >>> img_proc.cost
+        0
+        """
+        # YOUR CODE GOES HERE #
+        self.cost = 0
+        self.coupons = 0
 
-#     def negate(self, image):
-#         """
-#         Returns a negated copy of the given image
+    def negate(self, image):
+        """
+        Returns a negated copy of the given image
 
-#         # Check the expected cost
-#         >>> img_proc = StandardImageProcessing()
-#         >>> img_in = img_read_helper('img/square_32x32.png')
-#         >>> negated = img_proc.negate(img_in)
-#         >>> img_proc.get_cost()
-#         5
+        # Check the expected cost
+        >>> img_proc = StandardImageProcessing()
+        >>> img_in = img_read_helper('img/square_32x32.png')
+        >>> negated = img_proc.negate(img_in)
+        >>> img_proc.get_cost()
+        5
 
-#         # Check that negate works the same as in the parent class
-#         >>> img_proc = StandardImageProcessing()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_exp = img_read_helper('img/exp/test_image_32x32_negate.png')
-#         >>> img_negate = img_proc.negate(img)
-#         >>> img_negate.pixels == img_exp.pixels # Check negate output
-#         True
-#         """
-#         # YOUR CODE GOES HERE #
+        # Check that negate works the same as in the parent class
+        >>> img_proc = StandardImageProcessing()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_exp = img_read_helper('img/exp/test_image_32x32_negate.png')
+        >>> img_negate = img_proc.negate(img)
+        >>> img_negate.pixels == img_exp.pixels # Check negate output
+        True
+        """
+        # YOUR CODE GOES HERE #
+        if not self.coupons:
+            self.cost += 5
+        return super().negate(image)
 
-#     def grayscale(self, image):
-#         """
-#         Returns a grayscale copy of the given image
 
-#         """
-#         # YOUR CODE GOES HERE #
 
-#     def rotate_180(self, image):
-#         """
-#         Returns a rotated version of the given image
-#         """
-#         # YOUR CODE GOES HERE #
+    def grayscale(self, image):
+        """
+        Returns a grayscale copy of the given image
 
-#     def adjust_brightness(self, image, intensity):
-#         """
-#         Returns a new image with adjusted brightness level
-#         """
-#         # YOUR CODE GOES HERE #
+        """
+        # YOUR CODE GOES HERE #
+        if not self.coupons:
+            self.cost += 6
+        return super().grayscale(image)
 
-#     def redeem_coupon(self, amount):
-#         """
-#         Makes the given number of methods calls free
 
-#         # Check that the cost does not change for a call to negate
-#         # when a coupon is redeemed
-#         >>> img_proc = StandardImageProcessing()
-#         >>> img = img_read_helper('img/test_image_32x32.png')
-#         >>> img_proc.redeem_coupon(1)
-#         >>> img = img_proc.rotate_180(img)
-#         >>> img_proc.get_cost()
-#         0
-#         """
-#         # YOUR CODE GOES HERE #
+    def rotate_180(self, image):
+        """
+        Returns a rotated version of the given image
+        """
+        # YOUR CODE GOES HERE #
+        if not self.coupons:
+            self.cost += 10
+        return super().rotate_180(image)
+
+    def adjust_brightness(self, image, intensity):
+        """
+        Returns a new image with adjusted brightness level
+        """
+        # YOUR CODE GOES HERE #
+        if not self.coupons:
+            self.cost += 1
+        return super().adjust_brightness(image, intensity)
+
+    def redeem_coupon(self, amount):
+        """
+        Makes the given number of methods calls free
+
+        # Check that the cost does not change for a call to negate
+        # when a coupon is redeemed
+        >>> img_proc = StandardImageProcessing()
+        >>> img = img_read_helper('img/test_image_32x32.png')
+        >>> img_proc.redeem_coupon(1)
+        >>> img = img_proc.rotate_180(img)
+        >>> img_proc.get_cost()
+        0
+        """
+        # YOUR CODE GOES HERE #
+        #use an instance variable to track this
+        if not isinstance(amount, int):
+            raise TypeError()
+        if amount <= 0:
+            raise ValueError()
+        self.coupons += amount
+
+
 
 
 # # Part 4: Premium Image Processing Methods #
