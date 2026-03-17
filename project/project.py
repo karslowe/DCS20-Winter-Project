@@ -627,88 +627,126 @@ class PremiumImageProcessing(ImageProcessingTemplate):
 
 
 
-# # Part 5: Image KNN Classifier #
-# class ImageKNNClassifier:
-#     """
-#     Represents a simple KNNClassifier
-#     """
+# Part 5: Image KNN Classifier #
+class ImageKNNClassifier:
+    """
+    Represents a simple KNNClassifier
+    """
 
-#     def __init__(self, k_neighbors):
-#         """
-#         Creates a new KNN classifier object
-#         """
-#         # YOUR CODE GOES HERE #
+    def __init__(self, k_neighbors):
+        """
+        Creates a new KNN classifier object
+        """
+        self.k_neighbors = k_neighbors
+        self.data = None
 
-#     def fit(self, data):
-#         """
-#         Stores the given set of data and labels for later
-#         """
-#         # YOUR CODE GOES HERE #
+    def fit(self, data):
+        """
+        Stores the given set of data and labels for later
+        """
+        if len(data) < self.k_neighbors:
+            raise ValueError("Not enough data points for the given number of neighbors.")
+        
+        # Store the training data in the instance attribute named `data`
+        self.data = data
 
-#     def distance(self, image1, image2):
-#         """
-#         Returns the distance between the given images
+    def distance(self, image1, image2):
+        """
+        Returns the distance between the given images
 
-#         >>> img1 = img_read_helper('img/steve.png')
-#         >>> img2 = img_read_helper('img/knn_test_img.png')
-#         >>> knn = ImageKNNClassifier(3)
-#         >>> knn.distance(img1, img2)
-#         15946.312896716909
-#         """
-#         # YOUR CODE GOES HERE #
+        >>> img1 = img_read_helper('img/steve.png')
+        >>> img2 = img_read_helper('img/knn_test_img.png')
+        >>> knn = ImageKNNClassifier(3)
+        >>> knn.distance(img1, img2)
+        15946.312896716909
+        """
+        if not (isinstance(image1, RGBImage) and isinstance(image2, RGBImage)):
+            raise TypeError("Both arguments must be RGBImage instances.")
+        
+        if image1.size() != image2.size():
+            raise ValueError("Images must have the same size to calculate distance.")
 
-#     def vote(self, candidates):
-#         """
-#         Returns the most frequent label in the given list
+        p1 = image1.get_pixels()
+        p2 = image2.get_pixels()
 
-#         >>> knn = ImageKNNClassifier(3)
-#         >>> knn.vote(['label1', 'label2', 'label2', 'label2', 'label1'])
-#         'label2'
-#         """
-#         # YOUR CODE GOES HERE #
+        # Calculate Euclidean distance
+        sum_of_squares = sum([
+            (p1[r][c][ch] - p2[r][c][ch]) ** 2
+            for r in range(image1.num_rows)
+            for c in range(image1.num_cols)
+            for ch in range(3)
+        ])
+        
+        return sum_of_squares ** 0.5
 
-#     def predict(self, image):
-#         """
-#         Predicts the label of the given image using the labels of
-#         the K closest neighbors to this image
+    def vote(self, candidates):
+        """
+        Returns the most frequent label in the given list
 
-#         The test for this method is located in the knn_tests method below
-#         """
-#         # YOUR CODE GOES HERE #
+        >>> knn = ImageKNNClassifier(3)
+        >>> knn.vote(['label1', 'label2', 'label2', 'label2', 'label1'])
+        'label2'
+        """
+        return max(set(candidates), key=candidates.count)
+
+    def predict(self, image):
+        """
+        Predicts the label of the given image using the labels of
+        the K closest neighbors to this image
+
+        The test for this method is located in the knn_tests method below
+        """
+        if self.data is None:
+            raise ValueError("Classifier must be fitted with data before predicting.")
+
+        # Calculate the distances between the given image and all training images
+        distances_and_labels = [
+            (self.distance(image, train_img), label) 
+            for train_img, label in self.data
+        ]
+
+        # Sort the list based on the calculated distances (shortest distance first)
+        sorted_neighbors = sorted(distances_and_labels, key=lambda x: x[0])
+
+        # Extract the labels of the top k_neighbors closest images
+        top_k_labels = [label for dist, label in sorted_neighbors[:self.k_neighbors]]
+
+        # Use the vote method to return the most popular label among the nearest neighbors
+        return self.vote(top_k_labels)
 
 
-# def knn_tests(test_img_path):
-#     """
-#     Function to run knn tests
+def knn_tests(test_img_path):
+    """
+    Function to run knn tests
 
-#     >>> knn_tests('img/knn_test_img.png')
-#     'nighttime'
-#     """
-#     # Read all of the sub-folder names in the knn_data folder
-#     # These will be treated as labels
-#     path = 'knn_data'
-#     data = []
-#     for label in os.listdir(path):
-#         label_path = os.path.join(path, label)
-#         # Ignore non-folder items
-#         if not os.path.isdir(label_path):
-#             continue
-#         # Read in each image in the sub-folder
-#         for img_file in os.listdir(label_path):
-#             train_img_path = os.path.join(label_path, img_file)
-#             img = img_read_helper(train_img_path)
-#             # Add the image object and the label to the dataset
-#             data.append((img, label))
+    >>> knn_tests('img/knn_test_img.png')
+    'nighttime'
+    """
+    # Read all of the sub-folder names in the knn_data folder
+    # These will be treated as labels
+    path = 'knn_data'
+    data = []
+    for label in os.listdir(path):
+        label_path = os.path.join(path, label)
+        # Ignore non-folder items
+        if not os.path.isdir(label_path):
+            continue
+        # Read in each image in the sub-folder
+        for img_file in os.listdir(label_path):
+            train_img_path = os.path.join(label_path, img_file)
+            img = img_read_helper(train_img_path)
+            # Add the image object and the label to the dataset
+            data.append((img, label))
 
-#     # Create a KNN-classifier using the dataset
-#     knn = ImageKNNClassifier(5)
+    # Create a KNN-classifier using the dataset
+    knn = ImageKNNClassifier(5)
 
-#     # Train the classifier by providing the dataset
-#     knn.fit(data)
+    # Train the classifier by providing the dataset
+    knn.fit(data)
 
-#     # Create an RGBImage object of the tested image
-#     test_img = img_read_helper(test_img_path)
+    # Create an RGBImage object of the tested image
+    test_img = img_read_helper(test_img_path)
 
-#     # Return the KNN's prediction
-#     predicted_label = knn.predict(test_img)
-#     return predicted_label
+    # Return the KNN's prediction
+    predicted_label = knn.predict(test_img)
+    return predicted_label
